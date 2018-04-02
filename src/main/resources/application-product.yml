@@ -1,0 +1,51 @@
+#默认数据库连接配置
+spring:
+  jpa:
+     show-sql: true
+     hibernate:
+        ddl-auto: create
+        
+  datasource:
+    #url: jdbc:mysql://localhost:3306/zblog
+    type: com.zaxxer.hikari.HikariDataSource
+    url:  jdbc:mysql://localhost:3306/crazychain_db?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: 123456
+    hikari:
+            data-source-properties:
+                cachePrepStmts: true
+                prepStmtCacheSize: 250
+                prepStmtCacheSqlLimit: 2048
+                useServerPrepStmts: true
+    
+  #thymeleaf:
+  #  mode: HTML5
+  
+second:
+  jpa:
+     show-sql: true
+     hibernate:
+        ddl-auto: create
+  datasource:
+    #url: jdbc:mysql://localhost:3306/zblog
+    type: com.zaxxer.hikari.HikariDataSource
+    url:  jdbc:mysql://192.168.10.12:3306/article_db?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: MyNewPass4!
+    hikari:
+            data-source-properties:
+                cachePrepStmts: true
+                prepStmtCacheSize: 250
+                prepStmtCacheSqlLimit: 2048
+                useServerPrepStmts: true
+  #字符集和json格式工具
+  http:
+    encoding:
+      charset: utf-8
+    converters:
+      preferred-json-mapper: jackson
+    multipart:
+      max-file-size: 10MB
+  application:
+    name: crazychain
+

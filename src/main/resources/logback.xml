@@ -6,7 +6,7 @@
     -->
     <if condition='!isDefined("logs.dir")'>
         <then>
-            <property resource="application.properties" />
+            <property resource="application.yml" />
         </then>
     </if>
 
@@ -50,6 +50,10 @@
 
         <appender-ref ref="FILE" />
     </appender>
+    
+        <!-- hibernate -->
+    <logger name="org.hibernate.SQL" level="TRACE"/>
+    <logger name="org.hibernate.type" level="TRACE"/>
 
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
@@ -60,23 +64,9 @@
     <!-- Copied from core -->
     <logger name="org.springframework" level="INFO"/>
     <logger name="org.springframework.jdbc.core" level="TRACE"/>
-    <logger name="state" level="WARN"/>
-    <logger name="trie" level="ERROR"/>
-    <logger name="net" level="DEBUG"/>
-    <logger name="execute" level="ERROR"/>
-    <logger name="VM" level="ERROR"/>
-    <logger name="pending" level="DEBUG"/>
-    <logger name="sync" level="TRACE"/>
-    <logger name="wire" level="ERROR"/>
-    <logger name="db" level="DEBUG"/>
-    <logger name="general" level="DEBUG"/>
-    <logger name="TCK-Test" level="ERROR"/>
-    <logger name="org.hibernate" level="ERROR"/>
-    <logger name="repository" level="INFO"/>
-    <logger name="blockchain" level="INFO"/>
-    <logger name="mine" level="DEBUG"/>
-    <logger name="blockqueue" level="DEBUG"/>
-    <logger name="rlp" level="ERROR"/>
+    
+
+   
     <logger name="java.nio" level="ERROR"/>
     <logger name="io.netty" level="ERROR"/>
     <logger name="discover" level="DEBUG"/>
@@ -86,24 +76,10 @@
     <!-- Harmony -->
     <logger level="DEBUG" name="desktop"/>
     <logger level="DEBUG" name="contracts"/>
-    <logger level="DEBUG" name="keystore"/>
-    <logger level="DEBUG" name="wallet"/>
-    <logger level="DEBUG" name="harmony"/>
-    <logger level="DEBUG" name="jsonrpc"/>
+ 
     <logger level="INFO" name="org.springframework.web.servlet.DispatcherServlet"/>
     <logger level="DEBUG" name="com.ethercamp.harmony"/>
 
-    <!-- Contract data -->
-    <logger level="INFO" name="web-profiler"/>
-    <logger level="DEBUG" name="block-saver"/>
-    <logger level="DEBUG" name="batch-size-adviser"/>
-    <logger level="DEBUG" name="pg-data-copier"/>
-    <logger level="INFO" name="blocks-holder"/>
-    <logger level="INFO" name="contract-data"/>
-    <logger level="INFO" name="stat"/>
-
-    <logger level="INFO" name="discover"/>
-    <logger level="INFO" name="sync"/>
-    <logger level="TRACE" name="notification"/>
+  
 
 </configuration>

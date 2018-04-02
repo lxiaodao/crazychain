@@ -1,0 +1,25 @@
+#Define 
+
+#加载logback
+logs.dir: logs
+
+logging:
+  config: classpath:logback.xml
+  
+  
+
+spring:
+  profiles:
+    active: "product"
+  main:
+    banner-mode: "log"
+
+
+server:
+  session-timeout : 3600
+  port: 9000
+
+
+
+
+
