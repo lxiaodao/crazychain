@@ -10,7 +10,7 @@ logging:
 
 spring:
   profiles:
-    active: "product"
+    active: "dev"
   main:
     banner-mode: "log"
 

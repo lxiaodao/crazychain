@@ -20,6 +20,8 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.atomikos.jdbc.AtomikosDataSourceBean;
+import com.mysql.jdbc.jdbc2.optional.MysqlXADataSource;
 import com.zaxxer.hikari.HikariDataSource;
 
 /**
@@ -29,7 +31,7 @@ import com.zaxxer.hikari.HikariDataSource;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(entityManagerFactoryRef = "userEntityManagerFactory",
-    transactionManagerRef = "userTransactionManager", basePackages = {"cn.crazychain.repository"})
+    transactionManagerRef = "customerJtaTransactionManager", basePackages = {"cn.crazychain.repository"})
 public class ChaindbConfigure {
 	
 	    //cn.crazychain.article.repository
@@ -45,7 +47,16 @@ public class ChaindbConfigure {
 	public DataSource dataSource() {
 		// return DataSourceBuilder.create().build();
 		// .type(HikariDataSource.class)
-		return devDataSourceProperties().initializeDataSourceBuilder().build();
+		//return devDataSourceProperties().initializeDataSourceBuilder().build();
+		MysqlXADataSource mdatasource = new MysqlXADataSource();
+		mdatasource.setUrl(devDataSourceProperties().getUrl());
+		mdatasource.setUser(devDataSourceProperties().getUsername());
+		mdatasource.setPassword(devDataSourceProperties().getPassword());
+
+		AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
+		xaDataSource.setXaDataSource(mdatasource);
+		xaDataSource.setUniqueResourceName("userDataSource");
+		return xaDataSource;
 	}
 	
 
