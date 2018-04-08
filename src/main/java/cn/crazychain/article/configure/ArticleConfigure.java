@@ -5,30 +5,21 @@ package cn.crazychain.article.configure;
 
 import java.util.HashMap;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import javax.sql.XADataSource;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import org.springframework.boot.jta.bitronix.PoolingDataSourceBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import com.atomikos.jdbc.AtomikosDataSourceBean;
 import com.mysql.jdbc.jdbc2.optional.MysqlXADataSource;
 
 import cn.crazychain.transaction.CustomerAtomikosJtaPlatform;
@@ -56,19 +47,22 @@ public class ArticleConfigure {
 	@Bean(name = "articleDataSource", initMethod = "init", destroyMethod = "close")
 	public DataSource articleDataSource() {
 	
-		/*MysqlXADataSource mdatasource = new MysqlXADataSource();
+		MysqlXADataSource mdatasource = new MysqlXADataSource();
 		mdatasource.setUrl(secondDataSourceProperties().getUrl());
 		mdatasource.setUser(secondDataSourceProperties().getUsername());
-		mdatasource.setPassword(secondDataSourceProperties().getPassword());*/
+		mdatasource.setPassword(secondDataSourceProperties().getPassword());
 		
-		JdbcDataSource h2XaDataSource = new JdbcDataSource();
-		h2XaDataSource.setURL(secondDataSourceProperties().getUrl());
+		/*JdbcDataSource h2XaDataSource = new JdbcDataSource();
+		h2XaDataSource.setURL(secondDataSourceProperties().getUrl());*/
 	
 
-		AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
-		xaDataSource.setXaDataSource(h2XaDataSource);
+		//AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
+		PoolingDataSourceBean xaDataSource=new PoolingDataSourceBean();
+		//xaDataSource.setXaDataSource(h2XaDataSource);
+		xaDataSource.setDataSource(mdatasource);
 		xaDataSource.setMaxPoolSize(30);
-		xaDataSource.setUniqueResourceName("axds1");
+		//xaDataSource.setUniqueResourceName("axds1");
+		xaDataSource.setUniqueName("axds1");
 		
 
         

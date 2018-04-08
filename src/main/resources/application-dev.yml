@@ -8,8 +8,8 @@ user:
   datasource:
     
     type: com.mysql.jdbc.Driver
-    #url:  jdbc:mysql://localhost:3306/crazychain_db?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
-    url: jdbc:h2:./crazychain_db
+    url:  jdbc:mysql://localhost:3306/crazychain_db?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
+    #url: jdbc:h2:./crazychain_db
     username: root
     password: 123456
 
@@ -25,8 +25,8 @@ second:
   datasource:
    
     type: com.mysql.jdbc.Driver
-    #url:  jdbc:mysql://192.168.10.12:3306/article_db?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
-    url: jdbc:h2:./article_db
+    url:  jdbc:mysql://192.168.10.12:3306/article_db?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
+    #url: jdbc:h2:./article_db
     username: root
     password: MyNewPass4!
    

@@ -12,7 +12,7 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
+import org.springframework.boot.jta.bitronix.PoolingDataSourceBean;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,19 +58,24 @@ public class UserConfigure {
 		// return DataSourceBuilder.create().build();
 		// .type(HikariDataSource.class)
 		//return devDataSourceProperties().initializeDataSourceBuilder().build();
-		/*MysqlXADataSource mdatasource = new MysqlXADataSource();
+		MysqlXADataSource mdatasource = new MysqlXADataSource();
 		mdatasource.setUrl(devDataSourceProperties().getUrl());
 		mdatasource.setUser(devDataSourceProperties().getUsername());
-		mdatasource.setPassword(devDataSourceProperties().getPassword());*/
-		
+		mdatasource.setPassword(devDataSourceProperties().getPassword());
+		/*
 		JdbcDataSource h2XaDataSource = new JdbcDataSource();
 		h2XaDataSource.setURL(devDataSourceProperties().getUrl());
-
-		AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
-		xaDataSource.setXaDataSource(h2XaDataSource);
-		xaDataSource.setMaxPoolSize(30);
-		xaDataSource.setUniqueResourceName("axds2");
-		return xaDataSource;
+*/
+		//
+		//AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
+				PoolingDataSourceBean xaDataSource=new PoolingDataSourceBean();
+				//xaDataSource.setXaDataSource(h2XaDataSource);
+				xaDataSource.setDataSource(mdatasource);
+				xaDataSource.setMaxPoolSize(30);
+				//xaDataSource.setUniqueResourceName("axds1");
+				xaDataSource.setUniqueName("axds2");
+				
+	    return xaDataSource;
 	}
 	
 	public JpaVendorAdapter jpaVendorAdapter() {

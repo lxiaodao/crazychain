@@ -33,6 +33,8 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-mongodb')
 	compile('org.springframework.boot:spring-boot-starter-data-redis')
 	compile('org.springframework.boot:spring-boot-starter-jta-atomikos')
+	/* bitronix */
+	compile('org.springframework.boot:spring-boot-starter-jta-bitronix')
 	compile('org.springframework.boot:spring-boot-starter-aop')
 	/*
 	
