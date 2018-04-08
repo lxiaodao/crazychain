@@ -64,6 +64,7 @@
     <!-- Copied from core -->
     <logger name="org.springframework" level="INFO"/>
     <logger name="org.springframework.jdbc.core" level="TRACE"/>
+    <logger level="INFO" name="org.springframework.web.servlet.DispatcherServlet"/>
     
 
    
@@ -73,12 +74,12 @@
     <logger name="hsqldb.db" level="ERROR"/>
 
 
-    <!-- Harmony -->
-    <logger level="DEBUG" name="desktop"/>
+    <!-- application -->
+    <logger level="DEBUG" name="testone"/>
     <logger level="DEBUG" name="contracts"/>
  
-    <logger level="INFO" name="org.springframework.web.servlet.DispatcherServlet"/>
-    <logger level="DEBUG" name="com.ethercamp.harmony"/>
+    
+
 
   
 

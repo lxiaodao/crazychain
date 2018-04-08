@@ -1,24 +1,23 @@
 /**
  * 
  */
-package cn.crazychain.article.configure;
+package cn.crazychain.configure;
 
 import java.util.HashMap;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import javax.sql.XADataSource;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -30,6 +29,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.atomikos.jdbc.AtomikosDataSourceBean;
 import com.mysql.jdbc.jdbc2.optional.MysqlXADataSource;
+import com.zaxxer.hikari.HikariDataSource;
 
 import cn.crazychain.transaction.CustomerAtomikosJtaPlatform;
 
@@ -39,41 +39,37 @@ import cn.crazychain.transaction.CustomerAtomikosJtaPlatform;
  */
 @Configuration
 @DependsOn("customerJtaTransactionManager")
-@EnableJpaRepositories(entityManagerFactoryRef = "articleEntityManagerFactory",
-    transactionManagerRef = "customerJtaTransactionManager", basePackages = {"cn.crazychain.article.repository"})
-
-public class ArticleConfigure {
-    
-
-	@ConfigurationProperties("second.datasource")
-	@Bean(name="articleDataSourceProperties")
-    public DataSourceProperties secondDataSourceProperties() {
-        return new DataSourceProperties();
-    }
+@EnableJpaRepositories(entityManagerFactoryRef = "userEntityManagerFactory",
+    transactionManagerRef = "customerJtaTransactionManager", basePackages = {"cn.crazychain.repository"})
+public class UserConfigure {
 	
-
-	//@Bean(name = "articleDataSource")
-	@Bean(name = "articleDataSource", initMethod = "init", destroyMethod = "close")
-	public DataSource articleDataSource() {
-	
+	    //cn.crazychain.article.repository
+	  @Bean(name = "userDataSourceProperties")
+	  @Primary
+	  @ConfigurationProperties(prefix = "user.datasource")
+	    public DataSourceProperties devDataSourceProperties() {
+	        return new DataSourceProperties();
+	    }
+	//@Bean(name = "userDataSource")
+	@Primary
+	//@ConfigurationProperties(prefix = "user.datasource")
+	@Bean(name = "userDataSource", initMethod = "init", destroyMethod = "close")
+	public DataSource userDataSource() {
+		// return DataSourceBuilder.create().build();
+		// .type(HikariDataSource.class)
+		//return devDataSourceProperties().initializeDataSourceBuilder().build();
 		/*MysqlXADataSource mdatasource = new MysqlXADataSource();
-		mdatasource.setUrl(secondDataSourceProperties().getUrl());
-		mdatasource.setUser(secondDataSourceProperties().getUsername());
-		mdatasource.setPassword(secondDataSourceProperties().getPassword());*/
+		mdatasource.setUrl(devDataSourceProperties().getUrl());
+		mdatasource.setUser(devDataSourceProperties().getUsername());
+		mdatasource.setPassword(devDataSourceProperties().getPassword());*/
 		
 		JdbcDataSource h2XaDataSource = new JdbcDataSource();
-		h2XaDataSource.setURL(secondDataSourceProperties().getUrl());
-	
+		h2XaDataSource.setURL(devDataSourceProperties().getUrl());
 
 		AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
 		xaDataSource.setXaDataSource(h2XaDataSource);
 		xaDataSource.setMaxPoolSize(30);
-		xaDataSource.setUniqueResourceName("axds1");
-		
-
-        
-		//2018-04-06 分布式事务
-		// return sourceProperties().initializeDataSourceBuilder().build();
+		xaDataSource.setUniqueResourceName("axds2");
 		return xaDataSource;
 	}
 	
@@ -84,63 +80,35 @@ public class ArticleConfigure {
 		hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);
 		return hibernateJpaVendorAdapter;
 	}
+	
 
-	@Bean(name = "articleEntityManagerFactory")
-	public LocalContainerEntityManagerFactoryBean articleEntityManagerFactory() {
-		//return builder.dataSource(dataSource).packages("cn.crazychain.article.domain").persistenceUnit("article").build();
+	@Bean(name = "userEntityManagerFactory")
+	@Primary
+	public LocalContainerEntityManagerFactoryBean userEntityManagerFactory(@Qualifier("userDataSource") DataSource dataSource ) {
+		//return builder.dataSource(dataSource).packages("cn.crazychain.domain").persistenceUnit("user").build();
 		HashMap<String, Object> properties = new HashMap<String, Object>();
 		properties.put("hibernate.transaction.jta.platform", CustomerAtomikosJtaPlatform.class.getName());
 		properties.put("javax.persistence.transactionType", "JTA");
 
 		LocalContainerEntityManagerFactoryBean entityManager = new LocalContainerEntityManagerFactoryBean();
-		entityManager.setJtaDataSource(articleDataSource());
+		entityManager.setJtaDataSource(dataSource);
 		entityManager.setJpaVendorAdapter(jpaVendorAdapter());
-		entityManager.setPackagesToScan("cn.crazychain.article.domain");
-		entityManager.setPersistenceUnitName("articlePersistenceUnit");
+		entityManager.setPackagesToScan("cn.crazychain.domain");
+		entityManager.setPersistenceUnitName("userPersistenceUnit");
 		entityManager.setJpaPropertyMap(properties);
 		return entityManager;
+		
 	}
-
-	/*@Bean(name = "articleTransactionManager")
-	public PlatformTransactionManager articleTransactionManager(
-			@Qualifier("articleEntityManagerFactory") EntityManagerFactory barEntityManagerFactory) {
-		return new JpaTransactionManager(barEntityManagerFactory);
-	}
-*/
+/*
+	@Bean(name = "userTransactionManager")
+	@Primary
+	public PlatformTransactionManager userTransactionManager(
+			@Qualifier("userEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
+		return new JpaTransactionManager(entityManagerFactory);
+	}*/
 
 }
-@ConfigurationProperties("second.datasource")
-class ArticleDataSourceProperties {
-	
-	private String url;
-	private String username;
-	private String password;
-	
-	
-	public void setUrl(String url){
-		this.url=url;;
-	}
-	
-	public String getUrl(){
-		return this.url;
-	}
-	
-	
-	public void setUsername(String username){
-		this.username=username;
-	}
-	public String getUsername(){
-		return this.username;
-	}
-	
-	public void setPassword(String password){
-		this.password=password;
-	}
-	
-	public String getPassword(){
-		return this.password;
-	}
+@ConfigurationProperties("user.datasource")
+class UserDataSourceProperties extends DataSourceProperties{
 	
 }
-
-

@@ -15,9 +15,11 @@ import cn.crazychain.article.domain.Article;
 import cn.crazychain.article.repository.ArticleRepository;
 import cn.crazychain.domain.User;
 import cn.crazychain.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Slf4j(topic = "testone")
 public class CrazychainApplicationTests {
 
 	@Test
@@ -44,6 +46,7 @@ public class CrazychainApplicationTests {
 		
 		 
 		 assertEquals(1, articleRepo.count());
+		 log.debug("---this is test's after------");
 	 }
 	 
 

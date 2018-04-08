@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.jta.JtaTransactionManager;
 
 import com.atomikos.icatch.jta.UserTransactionImp;
@@ -38,6 +39,7 @@ import com.atomikos.icatch.jta.UserTransactionManager;
  * @author yang
  *
  */
+@EnableTransactionManagement
 @Component(value = "customerJtaTransactionManager")
 public class CustomerJtaTransactionManager extends JtaTransactionManager {
 	
@@ -55,6 +57,9 @@ public class CustomerJtaTransactionManager extends JtaTransactionManager {
 	public CustomerJtaTransactionManager(@Qualifier("userTransaction")UserTransaction userTransaction,
 			@Qualifier("atomikosTransactionManager")TransactionManager transactionManager) {
 		super(userTransaction,transactionManager);
+		
+		CustomerAtomikosJtaPlatform.transaction=userTransaction;
+		CustomerAtomikosJtaPlatform.transactionManager=transactionManager;
 	
 	}
 
@@ -71,6 +76,7 @@ class CusUserTransaction extends UserTransactionImp{
 			throw new RuntimeException(e);
 		}
 	}
+	
 }
 @Component(value = "atomikosTransactionManager")
 class CusTransactionManager extends UserTransactionManager{
