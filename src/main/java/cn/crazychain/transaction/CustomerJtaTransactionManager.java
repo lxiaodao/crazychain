@@ -9,13 +9,14 @@ import javax.transaction.UserTransaction;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.jta.JtaTransactionManager;
 
 import com.atomikos.icatch.jta.UserTransactionImp;
-import com.atomikos.icatch.jta.UserTransactionManager;
+
+import bitronix.tm.BitronixTransactionManager;
 
 /**
  * 
@@ -40,6 +41,7 @@ import com.atomikos.icatch.jta.UserTransactionManager;
  *
  */
 @EnableTransactionManagement
+@ComponentScan(basePackages="cn.crazychain")
 @Component(value = "customerJtaTransactionManager")
 public class CustomerJtaTransactionManager extends JtaTransactionManager {
 	
@@ -66,25 +68,14 @@ public class CustomerJtaTransactionManager extends JtaTransactionManager {
 
 }
 @Component(value = "userTransaction")
-class CusUserTransaction extends UserTransactionImp{
+class CusUserTransaction extends BitronixTransactionManager{
 	
-	public CusUserTransaction(){
-		super();
-		try {
-			this.setTransactionTimeout(10000);
-		} catch (SystemException e) {
-			throw new RuntimeException(e);
-		}
-	}
 	
 }
+//BitronixTransactionManager UserTransactionManager
 @Component(value = "atomikosTransactionManager")
-class CusTransactionManager extends UserTransactionManager{
-	public CusTransactionManager(){
-		super();
-		this.setForceShutdown(false);
-		
-	}
+class CusTransactionManager extends BitronixTransactionManager{
+	
 }
 
 

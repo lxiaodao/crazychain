@@ -22,16 +22,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j(topic = "testone")
 public class CrazychainApplicationTests {
 
-	@Test
-	public void contextLoads() {
-		
-		
-	}
+	
 	 @Autowired
 	 private UserRepository userRepo;
 	 
 	 @Autowired
 	 private ArticleRepository articleRepo;
+	 
+	 
+	 private boolean isMockFail=false;
 	 
 	 
 	 @Before
@@ -42,11 +41,12 @@ public class CrazychainApplicationTests {
 	 
 	 @After
 	 public void after(){
-		 assertEquals(1, userRepo.count());
-		
 		 
-		 assertEquals(1, articleRepo.count());
-		 log.debug("---this is test's after------");
+		 int number=isMockFail?0:1;
+		 log.debug("---this is test's after------"+number+":"+isMockFail);
+		 assertEquals(number, userRepo.count());
+		 assertEquals(number, articleRepo.count());
+		 
 	 }
 	 
 
@@ -55,7 +55,7 @@ public class CrazychainApplicationTests {
 	@Transactional
 	public void test_insertTwo() {
 		User user=new User();
-		user.setName("wangx2");
+		user.setName("wangx2"+System.currentTimeMillis());
 		userRepo.save(user);
 		//
 		Article entity=new Article();
@@ -66,15 +66,33 @@ public class CrazychainApplicationTests {
 	}
 	
 	@Test
+	@Transactional
+	public void test_simple() {
+		
+		this.isMockFail=true;
+		
+	}
+	@Test(expected=RuntimeException.class)
+	@Transactional(rollbackFor = Exception.class)
 	public void test_distributed_transaction(){
+		this.isMockFail=true;
+		log.debug("---test_distributed_transaction------"+":"+isMockFail);
+		mockService();
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	private void mockService() {
+		
 		User user=new User();
-		user.setName("wangx2");
+		user.setName("wangx"+System.currentTimeMillis());
 		userRepo.save(user);
 		//
 		
 		Article entity=new Article();
 		entity.setTitle("this is a article about blockchain.");
+		
 		articleRepo.save(entity);
+		throw new RuntimeException("This is mock exception.");
 	}
 
 }

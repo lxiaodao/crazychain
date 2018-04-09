@@ -113,7 +113,4 @@ public class UserConfigure {
 	}*/
 
 }
-@ConfigurationProperties("user.datasource")
-class UserDataSourceProperties extends DataSourceProperties{
-	
-}
+
