@@ -37,9 +37,7 @@ public class ArticleConfigure {
     public DataSourceProperties secondDataSourceProperties() {
         return new DataSourceProperties();
     }
-	
 
-	//@Bean(name = "articleDataSource")
 	@Bean(name = "articleDataSource")
 	public DataSource articleDataSource() {
 	
@@ -61,24 +59,9 @@ public class ArticleConfigure {
 		
 		entityManager.setJpaVendorAdapter(jpaVendorAdapter());
 
-		/*HashMap<String, Object> properties = new HashMap<String, Object>();
-		properties.put("hibernate.transaction.jta.platform", CustomerAtomikosJtaPlatform.class.getName());
-		properties.put("javax.persistence.transactionType", "JTA");
-
-		LocalContainerEntityManagerFactoryBean entityManager = new LocalContainerEntityManagerFactoryBean();
-		entityManager.setJtaDataSource(articleDataSource());
-		entityManager.setJpaVendorAdapter(jpaVendorAdapter());
-		entityManager.setPackagesToScan("cn.crazychain.article.domain");
-		entityManager.setPersistenceUnitName("articlePersistenceUnit");
-		entityManager.setJpaPropertyMap(properties);*/
 		return entityManager;
 	}
 
-	/*@Bean(name = "articleTransactionManager")
-	public PlatformTransactionManager articleTransactionManager(
-			@Qualifier("articleEntityManagerFactory") EntityManagerFactory barEntityManagerFactory) {
-		return new JpaTransactionManager(barEntityManagerFactory);
-	}*/
 
 
 }
