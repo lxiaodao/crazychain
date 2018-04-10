@@ -52,8 +52,8 @@
     </appender>
     
         <!-- hibernate -->
-    <logger name="org.hibernate.SQL" level="TRACE"/>
-    <logger name="org.hibernate.type" level="TRACE"/>
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.type" level="DEBUG"/>
 
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
