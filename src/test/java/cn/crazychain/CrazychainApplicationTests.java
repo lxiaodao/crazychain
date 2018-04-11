@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +54,7 @@ public class CrazychainApplicationTests {
 	
 	@Test
 	@Transactional
+	@Rollback(false)
 	public void test_insertTwo() {
 		User user=new User();
 		user.setName("wangx2"+System.currentTimeMillis());
@@ -67,32 +69,11 @@ public class CrazychainApplicationTests {
 	
 	@Test
 	@Transactional
+	@Rollback(false)
 	public void test_simple() {
 		
 		this.isMockFail=true;
 		
 	}
-	@Test(expected=RuntimeException.class)
-	@Transactional(rollbackFor = Exception.class)
-	public void test_distributed_transaction(){
-		this.isMockFail=true;
-		log.debug("---test_distributed_transaction------"+":"+isMockFail);
-		mockService();
-	}
-
-	@Transactional(rollbackFor = Exception.class)
-	private void mockService() {
-		
-		User user=new User();
-		user.setName("wangx"+System.currentTimeMillis());
-		userRepo.save(user);
-		//
-		
-		Article entity=new Article();
-		entity.setTitle("this is a article about blockchain.");
-		
-		articleRepo.save(entity);
-		throw new RuntimeException("This is mock exception.");
-	}
-
+	
 }

@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import cn.crazychain.article.repository.ArticleRepository;
@@ -48,18 +49,16 @@ public class BusinessServiceTest {
 	 @After
 	 public void after(){
 		 int result=isMockFail?0:1;
+		 log.debug("---this is test's after begin------"+result);
+		
 		 assertEquals(result, userRepo.count());
 		 assertEquals(result, articleRepo.count());
-		 log.debug("---this is test's after------"+result);
+		 
 	 }
 	 
-	 //@Test
-	 public void test_createArticle() {
-		 
-		 businessService.createArticle("This is business.", isMockFail);
-		 
-	 }
-	 @Test
+
+	 @Test(expected=RuntimeException.class)
+	 @Rollback(false)
 	 public void test_createArticle_txfail() {
 		 isMockFail=true;
 		 log.debug("------BusinessServiceTest------test_createArticle_txfail");

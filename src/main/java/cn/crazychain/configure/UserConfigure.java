@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import javax.transaction.UserTransaction;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,6 +28,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.jdbc.AtomikosDataSourceBean;
 import com.mysql.jdbc.jdbc2.optional.MysqlXADataSource;
 import com.zaxxer.hikari.HikariDataSource;
@@ -53,7 +55,7 @@ public class UserConfigure {
 	//@Bean(name = "userDataSource")
 	@Primary
 	//@ConfigurationProperties(prefix = "user.datasource")
-	@Bean(name = "userDataSource", initMethod = "init", destroyMethod = "close")
+	@Bean(name = "userDataSource")
 	public DataSource userDataSource() {
 		// return DataSourceBuilder.create().build();
 		// .type(HikariDataSource.class)
@@ -104,6 +106,8 @@ public class UserConfigure {
 		return entityManager;
 		
 	}
+	
+
 /*
 	@Bean(name = "userTransactionManager")
 	@Primary

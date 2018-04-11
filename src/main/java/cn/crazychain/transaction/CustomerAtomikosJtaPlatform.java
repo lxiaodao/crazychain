@@ -13,10 +13,10 @@ public class CustomerAtomikosJtaPlatform extends AbstractJtaPlatform {
 	private static final long serialVersionUID = 1L;
     
 	
-	static TransactionManager transactionManager;
+	public static TransactionManager transactionManager;
 	
 
-	static UserTransaction transaction;
+	public static UserTransaction transaction;
 
 	@Override
 	protected TransactionManager locateTransactionManager() {

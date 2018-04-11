@@ -6,10 +6,11 @@ package cn.crazychain.article.configure;
 import java.util.HashMap;
 
 import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
 
-import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
 import org.springframework.boot.jta.bitronix.PoolingDataSourceBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
+import com.atomikos.icatch.jta.UserTransactionManager;
 import com.mysql.jdbc.jdbc2.optional.MysqlXADataSource;
 
 import cn.crazychain.transaction.CustomerAtomikosJtaPlatform;
@@ -29,7 +31,7 @@ import cn.crazychain.transaction.CustomerAtomikosJtaPlatform;
  *
  */
 @Configuration
-@DependsOn("customerJtaTransactionManager")
+//@DependsOn("customerJtaTransactionManager")
 @EnableJpaRepositories(entityManagerFactoryRef = "articleEntityManagerFactory",
     transactionManagerRef = "customerJtaTransactionManager", basePackages = {"cn.crazychain.article.repository"})
 
@@ -44,7 +46,7 @@ public class ArticleConfigure {
 	
 
 	//@Bean(name = "articleDataSource")
-	@Bean(name = "articleDataSource", initMethod = "init", destroyMethod = "close")
+	@Bean(name = "articleDataSource")
 	public DataSource articleDataSource() {
 	
 		MysqlXADataSource mdatasource = new MysqlXADataSource();
@@ -56,9 +58,9 @@ public class ArticleConfigure {
 		h2XaDataSource.setURL(secondDataSourceProperties().getUrl());*/
 	
 
-		//AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
+		 //com.atomikos.jdbc.AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
 		PoolingDataSourceBean xaDataSource=new PoolingDataSourceBean();
-		//xaDataSource.setXaDataSource(h2XaDataSource);
+		//xaDataSource.setXaDataSource(mdatasource);
 		xaDataSource.setDataSource(mdatasource);
 		xaDataSource.setMaxPoolSize(30);
 		//xaDataSource.setUniqueResourceName("axds1");
@@ -94,6 +96,9 @@ public class ArticleConfigure {
 		entityManager.setJpaPropertyMap(properties);
 		return entityManager;
 	}
+	
+	
+	
 
 	/*@Bean(name = "articleTransactionManager")
 	public PlatformTransactionManager articleTransactionManager(
@@ -103,38 +108,6 @@ public class ArticleConfigure {
 */
 
 }
-@ConfigurationProperties("second.datasource")
-class ArticleDataSourceProperties {
-	
-	private String url;
-	private String username;
-	private String password;
-	
-	
-	public void setUrl(String url){
-		this.url=url;;
-	}
-	
-	public String getUrl(){
-		return this.url;
-	}
-	
-	
-	public void setUsername(String username){
-		this.username=username;
-	}
-	public String getUsername(){
-		return this.username;
-	}
-	
-	public void setPassword(String password){
-		this.password=password;
-	}
-	
-	public String getPassword(){
-		return this.password;
-	}
-	
-}
+
 
 
