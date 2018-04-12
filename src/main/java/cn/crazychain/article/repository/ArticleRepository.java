@@ -13,8 +13,7 @@ import cn.crazychain.article.domain.Article;
  * @author yang
  *
  */
-//@Repository
-//@Transactional(value = "customerJtaTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
 }
