@@ -52,8 +52,8 @@
     </appender>
     
         <!-- hibernate -->
-    <logger name="org.hibernate.SQL" level="DEBUG"/>
-    <logger name="org.hibernate.type" level="DEBUG"/>
+    <logger name="org.hibernate.SQL" level="info"/>
+    <logger name="org.hibernate.type" level="info"/>
 
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
@@ -63,7 +63,7 @@
 
     <!-- Copied from core -->
     <logger name="org.springframework" level="INFO"/>
-    <logger name="org.springframework.jdbc.core" level="TRACE"/>
+    <logger name="org.springframework.jdbc.core" level="info"/>
     <logger level="INFO" name="org.springframework.web.servlet.DispatcherServlet"/>
     
 

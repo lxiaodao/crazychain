@@ -39,16 +39,21 @@ public class BusinessServiceTest {
 	 
 	 
 	 private boolean isMockFail=false;
+	 
+	 private long begintime;
+	 
 	
 	 @Before
 	 public void before(){
 		 userRepo.deleteAll();
 		 articleRepo.deleteAll();
+		 this.begintime=System.currentTimeMillis();
 	 }
 	 
 	 @After
 	 public void after(){
 		 int result=isMockFail?0:1;
+		 log.debug("-----need time------"+(System.currentTimeMillis()-this.begintime));
 		 assertEquals(result, userRepo.count());
 		 assertEquals(result, articleRepo.count());
 		 log.debug("---this is test's after------"+result);
@@ -60,9 +65,17 @@ public class BusinessServiceTest {
 	 @Test(expected=RuntimeException.class)
 	 public void test_createArticle_txfail() {
 		 isMockFail=true;
-		 log.debug("------BusinessServiceTest------test_createArticle_txfail");
+		
 		 businessService.createArticle("This is business.", isMockFail);
-		 log.debug("------BusinessServiceTest------test_createArticle_txfail end");
+		
+		 
+	 }
+	 @Rollback(false)
+	 @Test
+	 public void test_createAll() {
+	
+		 businessService.createAll();
+		
 		 
 	 }
 	

@@ -41,6 +41,19 @@ public class BusinessService {
 		}
 		
 	}
+	@Transactional(rollbackFor = Exception.class)
+	public void createAll() {
+		
+		User user=new User();
+		user.setName("wangx"+System.currentTimeMillis());
+		userRepo.save(user);
+		//
+		Article entity=new Article();
+		entity.setTitle("this is a article about blockchain.");
+		articleRepo.save(entity);
+		
+		
+	}
 	
 	private void mockThrowException() {
 		throw new RuntimeException("This is mock exception.");
