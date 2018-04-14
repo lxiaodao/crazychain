@@ -61,19 +61,6 @@ public class ArticleConfigure {
 		xaDataSource.setMaxPoolSize(30);
 		xaDataSource.setUniqueResourceName("axds1");
 	
-		
-		
-		//bitronix datasourcepool configure
-		/*PoolingDataSourceBean xaDataSource=new PoolingDataSourceBean();
-		
-		xaDataSource.setDataSource(mdatasource);
-		xaDataSource.setMaxPoolSize(30);
-		xaDataSource.setUniqueName("axds1");*/
-        		
-
-        
-		//2018-04-06 分布式事务
-		// return sourceProperties().initializeDataSourceBuilder().build();
 		return xaDataSource;
 	}
 	

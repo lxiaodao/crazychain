@@ -69,13 +69,7 @@ public class UserConfigure {
 		xaDataSource.setMaxPoolSize(30);	
 		xaDataSource.setXaDataSource(mdatasource);
 		xaDataSource.setUniqueResourceName("axds2");
-		
-		/*PoolingDataSourceBean xaDataSource=new PoolingDataSourceBean();
-				xaDataSource.setDataSource(mdatasource);
-				xaDataSource.setMaxPoolSize(30);
-				
-				xaDataSource.setUniqueName("axds2");*/
-				
+	
 	    return xaDataSource;
 	}
 	
