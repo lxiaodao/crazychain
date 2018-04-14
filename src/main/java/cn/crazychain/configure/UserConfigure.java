@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -33,15 +34,11 @@ import com.atomikos.jdbc.AtomikosDataSourceBean;
 import com.mysql.jdbc.jdbc2.optional.MysqlXADataSource;
 import com.zaxxer.hikari.HikariDataSource;
 
-import cn.crazychain.transaction.CustomerAtomikosJtaPlatform;
-
 /**
  * @author yang
  *
  */
 @Configuration
-@DependsOn("customerJtaTransactionManager")
-@EnableJpaRepositories(entityManagerFactoryRef = "userEntityManagerFactory",transactionManagerRef = "customerJtaTransactionManager", basePackages = {"cn.crazychain.repository"})
 public class UserConfigure {
 	
 	    //cn.crazychain.article.repository
@@ -82,41 +79,13 @@ public class UserConfigure {
 	    return xaDataSource;
 	}
 	
-	public JpaVendorAdapter jpaVendorAdapter() {
-		HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
-		hibernateJpaVendorAdapter.setShowSql(true);
-		hibernateJpaVendorAdapter.setGenerateDdl(true);
-		hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);
-		return hibernateJpaVendorAdapter;
-	}
-	
 
-	@Bean(name = "userEntityManagerFactory")
-	@Primary
-	public LocalContainerEntityManagerFactoryBean userEntityManagerFactory(@Qualifier("userDataSource") DataSource dataSource ) {
-		//return builder.dataSource(dataSource).packages("cn.crazychain.domain").persistenceUnit("user").build();
-		HashMap<String, Object> properties = new HashMap<String, Object>();
-		properties.put("hibernate.transaction.jta.platform", CustomerAtomikosJtaPlatform.class.getName());
-		properties.put("javax.persistence.transactionType", "JTA");
+	 @Bean(name = "userjdbcTemplate")
+    public JdbcTemplate userjdbcTemplate() {
+		 
+		 return new JdbcTemplate(userDataSource());
+	 }
 
-		LocalContainerEntityManagerFactoryBean entityManager = new LocalContainerEntityManagerFactoryBean();
-		entityManager.setJtaDataSource(dataSource);
-		entityManager.setJpaVendorAdapter(jpaVendorAdapter());
-		entityManager.setPackagesToScan("cn.crazychain.domain");
-		entityManager.setPersistenceUnitName("userPersistenceUnit");
-		entityManager.setJpaPropertyMap(properties);
-		return entityManager;
-		
-	}
-	
-
-/*
-	@Bean(name = "userTransactionManager")
-	@Primary
-	public PlatformTransactionManager userTransactionManager(
-			@Qualifier("userEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
-		return new JpaTransactionManager(entityManagerFactory);
-	}*/
-
+    
 }
 

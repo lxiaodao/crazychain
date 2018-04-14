@@ -14,6 +14,8 @@ import cn.crazychain.article.repository.ArticleRepository;
 import cn.crazychain.domain.User;
 import cn.crazychain.repository.UserRepository;
 
+
+
 /**
  * @author yang
  *
@@ -31,11 +33,15 @@ public class BusinessService {
 		
 		User user=new User();
 		user.setName("wangx"+System.currentTimeMillis());
-		userRepo.save(user);
+		//"INSERT into user (name,email) values (?,?)", 0, "foo"
+		String sql="INSERT into user (name,email) values (?,?)";
+		userRepo.insert(sql, new Object[] {user.getName(),user.getEmail()});
 		//
 		Article entity=new Article();
 		entity.setTitle("this is a article about blockchain.");
-		articleRepo.save(entity);
+		String sql2="INSERT into article (title,content) values (?,?)";
+		articleRepo.insert(sql2, new Object[] {entity.getTitle(),null});
+		
 		if(isfail) {
 			mockThrowException();
 		}
@@ -46,16 +52,17 @@ public class BusinessService {
 		
 		User user=new User();
 		user.setName("wangx"+System.currentTimeMillis());
-		userRepo.save(user);
+		//"INSERT into user (name,email) values (?,?)", 0, "foo"
+		String sql="INSERT into user (name,email) values (?,?)";
+		userRepo.insert(sql, new Object[] {user.getName(),user.getEmail()});
 		//
 		Article entity=new Article();
 		entity.setTitle("this is a article about blockchain.");
-		articleRepo.save(entity);
-		
+		String sql2="INSERT into article (title,content) values (?,?)";
+		articleRepo.insert(sql2, new Object[] {entity.getTitle(),null});
+	
 		
 	}
-	
-	
 	
 	private void mockThrowException() {
 		throw new RuntimeException("This is mock exception.");

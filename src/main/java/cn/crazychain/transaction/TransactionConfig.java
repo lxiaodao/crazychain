@@ -49,11 +49,9 @@ public class TransactionConfig {
 	@DependsOn({ "userTransaction", "atomikosTransactionManager" })
 	public PlatformTransactionManager transactionManager() throws Throwable {
 		UserTransaction userTransaction = userTransaction();
-        CustomerAtomikosJtaPlatform.transaction = userTransaction;
-        
-        
+      
 		TransactionManager atomikosTransactionManager = atomikosTransactionManager();
-        CustomerAtomikosJtaPlatform.transactionManager = atomikosTransactionManager;
+     
 
 		
 		return new JtaTransactionManager(userTransaction, atomikosTransactionManager);

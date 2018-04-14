@@ -36,8 +36,10 @@ public class CrazychainApplicationTests {
 	 
 	 @Before
 	 public void before(){
-		 userRepo.deleteAll();
-		 articleRepo.deleteAll();
+		 //userRepo.deleteAll();
+		 //articleRepo.deleteAll();
+		 userRepo.delete("delete from user");
+		 articleRepo.delete("delete from article");
 	 }
 	 
 	 @After
@@ -45,8 +47,8 @@ public class CrazychainApplicationTests {
 		 
 		 int number=isMockFail?0:1;
 		 log.debug("---this is test's after------"+number+":"+isMockFail);
-		 assertEquals(number, userRepo.count());
-		 assertEquals(number, articleRepo.count());
+		 assertEquals(number, userRepo.queryCount("select count(*) from user", null));
+		 assertEquals(number, articleRepo.queryCount("select count(*) from article", null));
 		 
 	 }
 	 
@@ -58,11 +60,13 @@ public class CrazychainApplicationTests {
 	public void test_insertTwo() {
 		User user=new User();
 		user.setName("wangx2"+System.currentTimeMillis());
-		userRepo.save(user);
+		String sql="INSERT into user (name,email) values (?,?)";
+		userRepo.insert(sql, new Object[] {user.getName(),user.getEmail()});
 		//
 		Article entity=new Article();
 		entity.setTitle("this is a article about blockchain.");
-		articleRepo.save(entity);
+		String sql2="INSERT into article (title,content) values (?,?)";
+		articleRepo.insert(sql2, new Object[] {entity.getTitle(),null});
 		//
 		
 	}

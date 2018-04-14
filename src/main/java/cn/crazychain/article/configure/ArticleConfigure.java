@@ -8,6 +8,8 @@ import java.util.HashMap;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
@@ -16,6 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
@@ -24,17 +27,11 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import com.atomikos.icatch.jta.UserTransactionManager;
 import com.mysql.jdbc.jdbc2.optional.MysqlXADataSource;
 
-import cn.crazychain.transaction.CustomerAtomikosJtaPlatform;
-
 /**
  * @author yang
  *
  */
 @Configuration
-//@DependsOn("customerJtaTransactionManager")
-@EnableJpaRepositories(entityManagerFactoryRef = "articleEntityManagerFactory",
-    transactionManagerRef = "customerJtaTransactionManager", basePackages = {"cn.crazychain.article.repository"})
-
 public class ArticleConfigure {
     
 
@@ -80,39 +77,15 @@ public class ArticleConfigure {
 		return xaDataSource;
 	}
 	
-	public JpaVendorAdapter jpaVendorAdapter() {
-		HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
-		hibernateJpaVendorAdapter.setShowSql(true);
-		hibernateJpaVendorAdapter.setGenerateDdl(true);
-		hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);
-		return hibernateJpaVendorAdapter;
-	}
-
-	@Bean(name = "articleEntityManagerFactory")
-	public LocalContainerEntityManagerFactoryBean articleEntityManagerFactory() {
-		//return builder.dataSource(dataSource).packages("cn.crazychain.article.domain").persistenceUnit("article").build();
-		HashMap<String, Object> properties = new HashMap<String, Object>();
-		properties.put("hibernate.transaction.jta.platform", CustomerAtomikosJtaPlatform.class.getName());
-		properties.put("javax.persistence.transactionType", "JTA");
-
-		LocalContainerEntityManagerFactoryBean entityManager = new LocalContainerEntityManagerFactoryBean();
-		entityManager.setJtaDataSource(articleDataSource());
-		entityManager.setJpaVendorAdapter(jpaVendorAdapter());
-		entityManager.setPackagesToScan("cn.crazychain.article.domain");
-		entityManager.setPersistenceUnitName("articlePersistenceUnit");
-		entityManager.setJpaPropertyMap(properties);
-		return entityManager;
-	}
 	
-	
+	 @Bean(name = "twojdbcTemplate")
+     public JdbcTemplate twojdbcTemplate() {
+		 
+		 return new JdbcTemplate(articleDataSource());
+	 }
 	
 
-	/*@Bean(name = "articleTransactionManager")
-	public PlatformTransactionManager articleTransactionManager(
-			@Qualifier("articleEntityManagerFactory") EntityManagerFactory barEntityManagerFactory) {
-		return new JpaTransactionManager(barEntityManagerFactory);
-	}
-*/
+	    
 
 }
 
