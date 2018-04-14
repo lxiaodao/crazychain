@@ -41,8 +41,7 @@ import cn.crazychain.transaction.CustomerAtomikosJtaPlatform;
  */
 @Configuration
 @DependsOn("customerJtaTransactionManager")
-@EnableJpaRepositories(entityManagerFactoryRef = "userEntityManagerFactory",
-    transactionManagerRef = "customerJtaTransactionManager", basePackages = {"cn.crazychain.repository"})
+@EnableJpaRepositories(entityManagerFactoryRef = "userEntityManagerFactory",transactionManagerRef = "customerJtaTransactionManager", basePackages = {"cn.crazychain.repository"})
 public class UserConfigure {
 	
 	    //cn.crazychain.article.repository
@@ -69,13 +68,16 @@ public class UserConfigure {
 		h2XaDataSource.setURL(devDataSourceProperties().getUrl());
 */
 		//
-		//AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
-				PoolingDataSourceBean xaDataSource=new PoolingDataSourceBean();
-				//xaDataSource.setXaDataSource(h2XaDataSource);
+		AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
+		xaDataSource.setMaxPoolSize(30);	
+		xaDataSource.setXaDataSource(mdatasource);
+		xaDataSource.setUniqueResourceName("axds2");
+		
+		/*PoolingDataSourceBean xaDataSource=new PoolingDataSourceBean();
 				xaDataSource.setDataSource(mdatasource);
 				xaDataSource.setMaxPoolSize(30);
-				//xaDataSource.setUniqueResourceName("axds1");
-				xaDataSource.setUniqueName("axds2");
+				
+				xaDataSource.setUniqueName("axds2");*/
 				
 	    return xaDataSource;
 	}

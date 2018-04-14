@@ -68,6 +68,15 @@ public class BusinessServiceTest {
 		 log.debug("------BusinessServiceTest------test_createArticle_txfail end");
 		 
 	 }
+	 @Test
+	 @Rollback(false)
+	 public void test_createAll_success() {
+		
+		 log.debug("------test_createAll_success------");
+		 businessService.createAll();
+		 
+		 
+	 }
 	
 	
 

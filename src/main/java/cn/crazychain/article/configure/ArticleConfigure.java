@@ -58,20 +58,20 @@ public class ArticleConfigure {
 		h2XaDataSource.setURL(secondDataSourceProperties().getUrl());*/
 	    
         //atomikos datasource configure
-		/*com.atomikos.jdbc.AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
+		com.atomikos.jdbc.AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
 	    xaDataSource.setXaDataSource(mdatasource);
 		
 		xaDataSource.setMaxPoolSize(30);
-		xaDataSource.setUniqueResourceName("axds1");*/
+		xaDataSource.setUniqueResourceName("axds1");
 	
 		
 		
 		//bitronix datasourcepool configure
-		PoolingDataSourceBean xaDataSource=new PoolingDataSourceBean();
+		/*PoolingDataSourceBean xaDataSource=new PoolingDataSourceBean();
 		
 		xaDataSource.setDataSource(mdatasource);
 		xaDataSource.setMaxPoolSize(30);
-		xaDataSource.setUniqueName("axds1");
+		xaDataSource.setUniqueName("axds1");*/
         		
 
         

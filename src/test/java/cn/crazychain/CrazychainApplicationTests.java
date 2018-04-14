@@ -68,7 +68,6 @@ public class CrazychainApplicationTests {
 	}
 	
 	@Test
-	@Transactional
 	@Rollback(false)
 	public void test_simple() {
 		

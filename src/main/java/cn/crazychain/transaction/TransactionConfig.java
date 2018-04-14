@@ -18,8 +18,6 @@ import org.springframework.transaction.jta.JtaTransactionManager;
 import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.icatch.jta.UserTransactionManager;
 
-import bitronix.tm.BitronixTransactionManager;
-import bitronix.tm.TransactionManagerServices;
 
 @Configuration
 @EnableTransactionManagement
@@ -37,8 +35,8 @@ public class TransactionConfig {
 	}
     
 	
-	//@Bean(name = "atomikosTransactionManager", initMethod = "init", destroyMethod = "close")
-	@Bean(name = "atomikosTransactionManager")
+	@Bean(name = "atomikosTransactionManager", initMethod = "init", destroyMethod = "close")
+	//@Bean(name = "atomikosTransactionManager")
 	public TransactionManager atomikosTransactionManager() throws Throwable {
 		UserTransactionManager userTransactionManager = new UserTransactionManager();
 		userTransactionManager.setForceShutdown(false);
