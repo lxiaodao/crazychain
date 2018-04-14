@@ -10,7 +10,7 @@ import javax.transaction.TransactionManager;
 
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
+
 import org.springframework.boot.jta.bitronix.PoolingDataSourceBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +22,7 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import com.atomikos.icatch.jta.UserTransactionManager;
+import com.atomikos.jdbc.AtomikosDataSourceBean;
 import com.mysql.jdbc.jdbc2.optional.MysqlXADataSource;
 
 import cn.crazychain.transaction.CustomerAtomikosJtaPlatform;
@@ -60,7 +61,7 @@ public class ArticleConfigure {
         //atomikos datasource configure
 		com.atomikos.jdbc.AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
 	    xaDataSource.setXaDataSource(mdatasource);
-		
+	    xaDataSource.setMinPoolSize(5);
 		xaDataSource.setMaxPoolSize(30);
 		xaDataSource.setUniqueResourceName("axds1");
 	

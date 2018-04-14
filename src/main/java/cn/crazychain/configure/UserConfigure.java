@@ -69,7 +69,8 @@ public class UserConfigure {
 */
 		//
 		AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
-		xaDataSource.setMaxPoolSize(30);	
+		  xaDataSource.setMinPoolSize(5);
+			xaDataSource.setMaxPoolSize(30);
 		xaDataSource.setXaDataSource(mdatasource);
 		xaDataSource.setUniqueResourceName("axds2");
 		
