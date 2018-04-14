@@ -52,9 +52,7 @@ public class TransactionConfig {
       
 		TransactionManager atomikosTransactionManager = atomikosTransactionManager();
      
-
-		
-		return new JtaTransactionManager(userTransaction, atomikosTransactionManager);
+        return new JtaTransactionManager(userTransaction, atomikosTransactionManager);
 	}
 
 }
