@@ -1,0 +1,662 @@
+I have meet the same problem until use jdbc to replace the hibernate JPA.
+Porject one,With JPA.
+@Configuration
+@EnableJpaRepositories(entityManagerFactoryRef = "articleEntityManagerFactory",
+    transactionManagerRef = "customerJtaTransactionManager", basePackages = {"cn.crazychain.article.repository"})
+public class ArticleConfigure {
+    
+
+	@ConfigurationProperties("second.datasource")
+	@Bean(name="articleDataSourceProperties")
+    public DataSourceProperties secondDataSourceProperties() {
+        return new DataSourceProperties();
+    }
+	
+
+	//@Bean(name = "articleDataSource")
+	@Bean(name = "articleDataSource")
+	public DataSource articleDataSource() {
+	
+		MysqlXADataSource mdatasource = new MysqlXADataSource();
+		mdatasource.setUrl(secondDataSourceProperties().getUrl());
+		mdatasource.setUser(secondDataSourceProperties().getUsername());
+		mdatasource.setPassword(secondDataSourceProperties().getPassword());
+		
+		/*JdbcDataSource h2XaDataSource = new JdbcDataSource();
+		h2XaDataSource.setURL(secondDataSourceProperties().getUrl());*/
+	    
+        //atomikos datasource configure
+		com.atomikos.jdbc.AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
+	    xaDataSource.setXaDataSource(mdatasource);
+	    xaDataSource.setMinPoolSize(5);
+		xaDataSource.setMaxPoolSize(30);
+		xaDataSource.setUniqueResourceName("axds1");
+	
+
+		return xaDataSource;
+	}
+	
+	public JpaVendorAdapter jpaVendorAdapter() {
+		HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
+		hibernateJpaVendorAdapter.setShowSql(true);
+		hibernateJpaVendorAdapter.setGenerateDdl(true);
+		hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);
+		return hibernateJpaVendorAdapter;
+	}
+
+	@Bean(name = "articleEntityManagerFactory")
+	public LocalContainerEntityManagerFactoryBean articleEntityManagerFactory() {
+		//return builder.dataSource(dataSource).packages("cn.crazychain.article.domain").persistenceUnit("article").build();
+		HashMap<String, Object> properties = new HashMap<String, Object>();
+		properties.put("hibernate.transaction.jta.platform", CustomerAtomikosJtaPlatform.class.getName());
+		properties.put("javax.persistence.transactionType", "JTA");
+
+		LocalContainerEntityManagerFactoryBean entityManager = new LocalContainerEntityManagerFactoryBean();
+		entityManager.setJtaDataSource(articleDataSource());
+		entityManager.setJpaVendorAdapter(jpaVendorAdapter());
+		entityManager.setPackagesToScan("cn.crazychain.article.domain");
+		entityManager.setPersistenceUnitName("articlePersistenceUnit");
+		entityManager.setJpaPropertyMap(properties);
+		return entityManager;
+	}
+	
+	
+	
+
+	/*@Bean(name = "articleTransactionManager")
+	public PlatformTransactionManager articleTransactionManager(
+			@Qualifier("articleEntityManagerFactory") EntityManagerFactory barEntityManagerFactory) {
+		return new JpaTransactionManager(barEntityManagerFactory);
+	}
+*/
+
+}
+
+**UserConfigure**.
+
+
+     public class UserConfigure {
+        	
+        	  @Bean(name = "userDataSourceProperties")
+        	  @Primary
+        	  @ConfigurationProperties(prefix = "user.datasource")
+        	    public DataSourceProperties devDataSourceProperties() {
+        	        return new DataSourceProperties();
+        	    }
+        	
+        	@Primary
+        	
+        	@Bean(name = "userDataSource")
+        	public DataSource userDataSource() {
+        		// return DataSourceBuilder.create().build();
+        		// .type(HikariDataSource.class)
+        		//return 
+        devDataSourceProperties().initializeDataSourceBuilder().build();
+        		MysqlXADataSource mdatasource = new MysqlXADataSource();
+        		mdatasource.setUrl(devDataSourceProperties().getUrl());
+        		mdatasource.setUser(devDataSourceProperties().getUsername());
+        		mdatasource.setPassword(devDataSourceProperties().getPassword());
+        		/*
+        		JdbcDataSource h2XaDataSource = new JdbcDataSource();
+        		h2XaDataSource.setURL(devDataSourceProperties().getUrl());
+        */
+        		//
+        		AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
+        		  xaDataSource.setMinPoolSize(5);
+        			xaDataSource.setMaxPoolSize(30);
+        		xaDataSource.setXaDataSource(mdatasource);
+        		xaDataSource.setUniqueResourceName("axds2");
+        	
+        				
+        	    return xaDataSource;
+        	}
+        	
+        	public JpaVendorAdapter jpaVendorAdapter() {
+        		HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
+        		hibernateJpaVendorAdapter.setShowSql(true);
+        		hibernateJpaVendorAdapter.setGenerateDdl(true);
+        		hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);
+        		return hibernateJpaVendorAdapter;
+        	}
+        	
+        
+        	@Bean(name = "userEntityManagerFactory")
+        	@Primary
+        	public LocalContainerEntityManagerFactoryBean userEntityManagerFactory(@Qualifier("userDataSource") DataSource dataSource ) {
+        		//return builder.dataSource(dataSource).packages("cn.crazychain.domain").persistenceUnit("user").build();
+        		HashMap<String, Object> properties = new HashMap<String, Object>();
+        		properties.put("hibernate.transaction.jta.platform", CustomerAtomikosJtaPlatform.class.getName());
+        		properties.put("javax.persistence.transactionType", "JTA");
+        
+        		LocalContainerEntityManagerFactoryBean entityManager = new LocalContainerEntityManagerFactoryBean();
+        		entityManager.setJtaDataSource(dataSource);
+        		entityManager.setJpaVendorAdapter(jpaVendorAdapter());
+        		entityManager.setPackagesToScan("cn.crazychain.domain");
+        		entityManager.setPersistenceUnitName("userPersistenceUnit");
+        		entityManager.setJpaPropertyMap(properties);
+        		return entityManager;
+        		
+        	}
+        	
+        
+        /*
+        	@Bean(name = "userTransactionManager")
+        	@Primary
+        	public PlatformTransactionManager userTransactionManager(
+        			@Qualifier("userEntityManagerFactory") EntityManagerFactory 
+        entityManagerFactory) {
+        		return new JpaTransactionManager(entityManagerFactory);
+        	}*/
+        
+        }
+
+   
+The transaction manager configure like this.
+
+    @Configuration
+    @EnableTransactionManagement
+    @ComponentScan(basePackages="cn.crazychain")
+    public class TransactionConfig {
+    
+    
+    
+    	@Bean(name = "userTransaction")
+    	public UserTransaction userTransaction() throws Throwable {
+    		UserTransactionImp userTransactionImp = new UserTransactionImp();
+    		userTransactionImp.setTransactionTimeout(10000);
+    		//return new BitronixTransactionManager();
+    		return userTransactionImp;
+    	}
+        
+    	
+    	@Bean(name = "atomikosTransactionManager", initMethod = "init", destroyMethod = "close")
+    	//@Bean(name = "atomikosTransactionManager")
+    	public TransactionManager atomikosTransactionManager() throws Throwable {
+    		UserTransactionManager userTransactionManager = new UserTransactionManager();
+    		userTransactionManager.setForceShutdown(false);
+             
+            //return TransactionManagerServices.getTransactionManager();
+    		return userTransactionManager;
+    	}
+    
+    	@Bean(name = "customerJtaTransactionManager")
+    	@DependsOn({ "userTransaction", "atomikosTransactionManager" })
+    	public PlatformTransactionManager transactionManager() throws Throwable {
+    		UserTransaction userTransaction = userTransaction();
+            CustomerAtomikosJtaPlatform.transaction = userTransaction;
+            
+            
+    		TransactionManager atomikosTransactionManager = atomikosTransactionManager();
+            CustomerAtomikosJtaPlatform.transactionManager = atomikosTransactionManager;
+    
+    		
+    		return new JtaTransactionManager(userTransaction, atomikosTransactionManager);
+    	}
+    
+    }
+**BusinessService**.
+    @Service("businessService")
+    public class BusinessService {
+    	 @Autowired
+    	 private UserRepository userRepo;
+    	 
+    	 @Autowired
+    	 private ArticleRepository articleRepo;
+    	
+    	@Transactional(rollbackFor = Exception.class)
+    	public void createArticle(String content,boolean isfail) {
+    		
+    		User user=new User();
+    		user.setName("wangx"+System.currentTimeMillis());
+    		userRepo.save(user);
+    		//
+    		Article entity=new Article();
+    		entity.setTitle("this is a article about blockchain.");
+    		articleRepo.save(entity);
+    		if(isfail) {
+    			mockThrowException();
+    		}
+    		
+    	}
+    	@Transactional(rollbackFor = Exception.class)
+    	public void createAll() {
+    		
+    		User user=new User();
+    		user.setName("wangx"+System.currentTimeMillis());
+    		userRepo.save(user);
+    		//
+    		Article entity=new Article();
+    		entity.setTitle("this is a article about blockchain.");
+    		articleRepo.save(entity);
+    		
+    		
+    	}
+    	
+    	
+    	
+    	private void mockThrowException() {
+    		throw new RuntimeException("This is mock exception.");
+    	}
+    
+    }
+
+One test file is
+
+    @RunWith(SpringRunner.class)
+    @SpringBootTest
+    @Slf4j(topic = "testone")
+    public class BusinessServiceTest {
+    	
+    	@Autowired
+    	 private UserRepository userRepo;
+    	 
+    	 @Autowired
+    	 private ArticleRepository articleRepo;
+    	 
+    	 @Autowired
+    	 private BusinessService businessService;
+    	 
+    	 
+    	 private boolean isMockFail=false;
+    	
+    	 @Before
+    	 public void before(){
+    		 userRepo.deleteAll();
+    		 articleRepo.deleteAll();
+    	 }
+    	 
+    	 @After
+    	 public void after(){
+    		 int result=isMockFail?0:1;
+    		 log.debug("---this is test's after begin------"+result);
+    		
+    		 assertEquals(result, userRepo.count());
+    		 assertEquals(result, articleRepo.count());
+    		 
+    	 }
+    	 
+    	 
+    	
+    	 @Test(expected=RuntimeException.class)
+    	 @Rollback(false)
+    	 public void test_createArticle_txfail() {
+    		 isMockFail=true;
+    		 log.debug("------BusinessServiceTest------test_createArticle_txfail");
+    		 businessService.createArticle("This is business.", isMockFail);
+    		 log.debug("------BusinessServiceTest------test_createArticle_txfail end");
+    		 
+    	 }
+    	 @Test
+    	 @Rollback(false)
+    	 public void test_createAll_success() {
+    		
+    		 log.debug("------test_createAll_success------");
+    		 businessService.createAll();
+    		 
+    		 
+    	 }
+    	
+    	
+    
+    }
+
+Using h2 datasource,the distributed transaction is success.
+**Mysql datasource.**
+
+    @Configuration
+    //@DependsOn("customerJtaTransactionManager")
+    @EnableJpaRepositories(entityManagerFactoryRef = "articleEntityManagerFactory",
+        transactionManagerRef = "customerJtaTransactionManager", basePackages = {"cn.crazychain.article.repository"})
+    
+    public class ArticleConfigure {
+        
+    
+    	@ConfigurationProperties("second.datasource")
+    	@Bean(name="articleDataSourceProperties")
+        public DataSourceProperties secondDataSourceProperties() {
+            return new DataSourceProperties();
+        }
+    	
+    
+    	//@Bean(name = "articleDataSource")
+    	@Bean(name = "articleDataSource")
+    	public DataSource articleDataSource() {
+    	
+    		MysqlXADataSource mdatasource = new MysqlXADataSource();
+    		mdatasource.setUrl(secondDataSourceProperties().getUrl());
+    		mdatasource.setUser(secondDataSourceProperties().getUsername());
+    		mdatasource.setPassword(secondDataSourceProperties().getPassword());
+    		
+    		/*JdbcDataSource h2XaDataSource = new JdbcDataSource();
+    		h2XaDataSource.setURL(secondDataSourceProperties().getUrl());*/
+    	    
+            //atomikos datasource configure
+    		com.atomikos.jdbc.AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
+    	    xaDataSource.setXaDataSource(mdatasource);
+    	    xaDataSource.setMinPoolSize(5);
+    		xaDataSource.setMaxPoolSize(30);
+    		xaDataSource.setUniqueResourceName("axds1");
+    	
+    		
+    		
+    		//bitronix datasourcepool configure
+    		/*PoolingDataSourceBean xaDataSource=new PoolingDataSourceBean();
+    		
+    		xaDataSource.setDataSource(mdatasource);
+    		xaDataSource.setMaxPoolSize(30);
+    		xaDataSource.setUniqueName("axds1");*/
+            		
+    
+            
+    		//2018-04-06 分布式事务
+    		// return sourceProperties().initializeDataSourceBuilder().build();
+    		return xaDataSource;
+    	}
+    	
+    	public JpaVendorAdapter jpaVendorAdapter() {
+    		HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
+    		hibernateJpaVendorAdapter.setShowSql(true);
+    		hibernateJpaVendorAdapter.setGenerateDdl(true);
+    		hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);
+    		return hibernateJpaVendorAdapter;
+    	}
+    
+    	@Bean(name = "articleEntityManagerFactory")
+    	public LocalContainerEntityManagerFactoryBean articleEntityManagerFactory() {
+    		//return builder.dataSource(dataSource).packages("cn.crazychain.article.domain").persistenceUnit("article").build();
+    		HashMap<String, Object> properties = new HashMap<String, Object>();
+    		properties.put("hibernate.transaction.jta.platform", CustomerAtomikosJtaPlatform.class.getName());
+    		properties.put("javax.persistence.transactionType", "JTA");
+    
+    		LocalContainerEntityManagerFactoryBean entityManager = new LocalContainerEntityManagerFactoryBean();
+    		entityManager.setJtaDataSource(articleDataSource());
+    		entityManager.setJpaVendorAdapter(jpaVendorAdapter());
+    		entityManager.setPackagesToScan("cn.crazychain.article.domain");
+    		entityManager.setPersistenceUnitName("articlePersistenceUnit");
+    		entityManager.setJpaPropertyMap(properties);
+    		return entityManager;
+    	}
+    	
+    	
+    	
+    
+    	/*@Bean(name = "articleTransactionManager")
+    	public PlatformTransactionManager articleTransactionManager(
+    			@Qualifier("articleEntityManagerFactory") EntityManagerFactory 
+       barEntityManagerFactory) {
+    		return new JpaTransactionManager(barEntityManagerFactory);
+    	}
+    */
+    
+    }
+
+But use mysql datasource,it is tested fail.
+
+(1) First doubt the atomikos do not support MysqlXADataSource good.
+(2) second think the JPA and hibernate is not support JTA so good.
+**Then I tink use jdbc.**
+Project two,use jdbc.
+
+
+**ArticleConfigure**.
+
+    @Configuration
+    public class ArticleConfigure {
+        
+    
+    	@ConfigurationProperties("second.datasource")
+    	@Bean(name="articleDataSourceProperties")
+        public DataSourceProperties secondDataSourceProperties() {
+            return new DataSourceProperties();
+        }
+    	
+    
+    	//@Bean(name = "articleDataSource")
+    	@Bean(name = "articleDataSource")
+    	public DataSource articleDataSource() {
+    	
+    		MysqlXADataSource mdatasource = new MysqlXADataSource();
+    		mdatasource.setUrl(secondDataSourceProperties().getUrl());
+    		mdatasource.setUser(secondDataSourceProperties().getUsername());
+    		mdatasource.setPassword(secondDataSourceProperties().getPassword());
+    		
+    		/*JdbcDataSource h2XaDataSource = new JdbcDataSource();
+    		h2XaDataSource.setURL(secondDataSourceProperties().getUrl());*/
+    	    
+            //atomikos datasource configure
+    		com.atomikos.jdbc.AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
+    	    xaDataSource.setXaDataSource(mdatasource);
+    		
+    		xaDataSource.setMaxPoolSize(30);
+    		xaDataSource.setUniqueResourceName("axds1");
+    	
+    		return xaDataSource;
+    	}
+    	
+    	
+    	 @Bean(name = "twojdbcTemplate")
+         public JdbcTemplate twojdbcTemplate() {
+    		 
+    		 return new JdbcTemplate(articleDataSource());
+    	 }
+    	
+    
+    	    
+    
+    }
+
+**UserConfigure**.
+
+@Configuration
+public class UserConfigure {
+	
+	    //cn.crazychain.article.repository
+	  @Bean(name = "userDataSourceProperties")
+	  @Primary
+	  @ConfigurationProperties(prefix = "user.datasource")
+	    public DataSourceProperties devDataSourceProperties() {
+	        return new DataSourceProperties();
+	    }
+	
+	@Primary
+	
+	@Bean(name = "userDataSource")
+	public DataSource userDataSource() {
+		// return DataSourceBuilder.create().build();
+		// .type(HikariDataSource.class)
+		//return 
+    devDataSourceProperties().initializeDataSourceBuilder().build();
+		MysqlXADataSource mdatasource = new MysqlXADataSource();
+		mdatasource.setUrl(devDataSourceProperties().getUrl());
+		mdatasource.setUser(devDataSourceProperties().getUsername());
+		mdatasource.setPassword(devDataSourceProperties().getPassword());
+		/*
+		JdbcDataSource h2XaDataSource = new JdbcDataSource();
+		h2XaDataSource.setURL(devDataSourceProperties().getUrl());
+        */
+		//
+		AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
+		xaDataSource.setMaxPoolSize(30);	
+		xaDataSource.setXaDataSource(mdatasource);
+		xaDataSource.setUniqueResourceName("axds2");
+	
+	    return xaDataSource;
+	}
+	
+
+	 @Bean(name = "userjdbcTemplate")
+    public JdbcTemplate userjdbcTemplate() {
+		 
+		 return new JdbcTemplate(userDataSource());
+	 }
+
+    
+}
+
+**BusinessService**.
+   
+
+     @Service("businessService")
+        public class BusinessService {
+        	 @Autowired
+        	 private UserRepository userRepo;
+        	 
+        	 @Autowired
+        	 private ArticleRepository articleRepo;
+        	
+        	@Transactional(rollbackFor = Exception.class)
+        	public void createArticle(String content,boolean isfail) {
+        		
+        		User user=new User();
+        		user.setName("wangx"+System.currentTimeMillis());
+        		//"INSERT into user (name,email) values (?,?)", 0, "foo"
+        		String sql="INSERT into user (name,email) values (?,?)";
+        		userRepo.insert(sql, new Object[] {user.getName(),user.getEmail()});
+        		//
+        		Article entity=new Article();
+        		entity.setTitle("this is a article about blockchain.");
+        		String sql2="INSERT into article (title,content) values (?,?)";
+        		articleRepo.insert(sql2, new Object[] {entity.getTitle(),null});
+        		
+        		if(isfail) {
+        			mockThrowException();
+        		}
+        		
+        	}
+        	@Transactional(rollbackFor = Exception.class)
+        	public void createAll() {
+        		
+        		User user=new User();
+        		user.setName("wangx"+System.currentTimeMillis());
+        		//"INSERT into user (name,email) values (?,?)", 0, "foo"
+        		String sql="INSERT into user (name,email) values (?,?)";
+        		userRepo.insert(sql, new Object[] {user.getName(),user.getEmail()});
+        		//
+        		Article entity=new Article();
+        		entity.setTitle("this is a article about blockchain.");
+        		String sql2="INSERT into article (title,content) values (?,?)";
+        		articleRepo.insert(sql2, new Object[] {entity.getTitle(),null});
+        	
+        		
+        	}
+        	
+        	private void mockThrowException() {
+        		throw new RuntimeException("This is mock exception.");
+        	}
+        
+        }
+
+**TransactionConfig**.
+
+    @Configuration
+    @EnableTransactionManagement
+    @ComponentScan(basePackages="cn.crazychain")
+    public class TransactionConfig {
+    
+    
+    
+    	@Bean(name = "userTransaction")
+    	public UserTransaction userTransaction() throws Throwable {
+    		UserTransactionImp userTransactionImp = new UserTransactionImp();
+    		userTransactionImp.setTransactionTimeout(10000);
+    		//return new BitronixTransactionManager();
+    		return userTransactionImp;
+    	}
+        
+    	
+    	@Bean(name = "atomikosTransactionManager", initMethod = "init", destroyMethod = "close")
+    	//@Bean(name = "atomikosTransactionManager")
+    	public TransactionManager atomikosTransactionManager() throws Throwable {
+    		UserTransactionManager userTransactionManager = new UserTransactionManager();
+    		userTransactionManager.setForceShutdown(false);
+             
+            //return TransactionManagerServices.getTransactionManager();
+    		return userTransactionManager;
+    	}
+    
+    	@Bean(name = "customerJtaTransactionManager")
+    	@DependsOn({ "userTransaction", "atomikosTransactionManager" })
+    	public PlatformTransactionManager transactionManager() throws Throwable {
+    		UserTransaction userTransaction = userTransaction();
+          
+    		TransactionManager atomikosTransactionManager = atomikosTransactionManager();
+         
+            return new JtaTransactionManager(userTransaction, atomikosTransactionManager);
+    	}
+    
+    }
+
+The test of service.
+
+    @RunWith(SpringRunner.class)
+    @SpringBootTest
+    @Slf4j(topic = "testone")
+    public class BusinessServiceTest{
+    	
+    	protected Logger log = LoggerFactory.getLogger(BusinessServiceTest.class);
+    	
+    	@Autowired
+    	private BusinessService businessService;
+    	
+    	
+    	@Autowired
+    	@Qualifier("userRepository")
+    	 private UserRepository userRepo;
+    	 
+    	 @Autowired
+    	 @Qualifier("articleRepository")
+    	 private ArticleRepository articleRepo;
+    	 
+    	
+    	 
+    	 
+    	 private boolean isMockFail=false;
+    	 
+    	 private long begintime=0;
+    	
+    	 @Before
+    	 public void before(){
+    		 userRepo.delete("delete from user");
+    		 articleRepo.delete("delete from article");
+    		 
+    		 this.begintime=System.currentTimeMillis();
+    	 }
+    	 
+    	 @After
+    	 public void after(){
+    		 int result=isMockFail?0:1;
+    		 log.debug("------need time------"+(System.currentTimeMillis()-begintime));
+    		 log.debug("---this is test's after begin------"+result);
+    		
+    		 assertEquals(result, userRepo.queryCount("select count(*) from user", null) );
+    		 assertEquals(result, articleRepo.queryCount("select count(*) from article", null));
+    		 
+    	 }
+    	 
+    	   @Test
+    	   @Rollback(false)
+    		public void test_success() {
+    			this.isMockFail=false;
+    			businessService.createAll();
+    			
+    		}
+    	 
+    	
+    	 
+    	   
+    	@Test(expected=Exception.class)
+    	@Rollback(false)
+    	public void test_insert_fail() {
+    		this.isMockFail=true;
+    		businessService.createArticle("", true);
+    	}
+    	
+    	
+    
+    }
+Whether there is bug in hibernate jpa whith ax. 
+The conclusion is that JTA works fine with jdbc and AtomikosDataSourceBean.
+The origin reference open source project is https://github.com/fabiomaffioletti/mul-at.git 
+The whole source code of mine is 
+https://github.com/lxiaodao/crazychain.
+
